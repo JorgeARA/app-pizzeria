@@ -1,43 +1,54 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AppContext } from "../../routes/Router";
 import { useEffect } from "react";
-import { getPizzas } from "../../services/user";
+import { getPizzas, protectedRoute } from "../../services/user";
 import "./style.scss";
 import Header from "./Header";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import Card from "./Card";
+import Footer from "./Footer";
 
 const Home = () => {
   const { pizza, setPizza } = useContext(AppContext);
+
+  const [reload, setReload] = useState(false); //aqui
+
+  const navigate = useNavigate(); //aqui
+
+  const handleCloseSession = () => {
+    //aqui
+    sessionStorage.clear();
+    setReload(!reload);
+  };
+
   const fetchPizzas = async () => {
     const product = await getPizzas();
     setPizza(product);
   };
+
   useEffect(() => {
     fetchPizzas();
-  }, []);
+    protectedRoute(navigate); //aqui
+  }, [reload]);
 
   return (
-    <div className="home">
-      <Header />
-      <div className="disponibles">
-        <span>Pizzas disponibles</span>
-        <button>Ver todas</button>
-        <Link to="/search">
-          <button>Search</button>
-        </Link>
+    <main className="main">
+      <div className="home">
+        <Header />
+        <div className="disponibles">
+          <span>Pizzas disponibles</span>
+          <Link to="/search">
+            <button>Search</button>
+          </Link>
+        </div>
+        <section className="container">
+          {pizza.map((item, index) => {
+            return <Card key={item.id} pizza={item} />;
+          })}
+        </section>
       </div>
-      {pizza.map((item, index) => {
-        return (
-          <div key={index} className="card text-bg-dark">
-            <img src={item.image} className="card-img" alt="Pizza" />
-            <div className="card-img-overlay">
-              <h5 className="card-title">{item.name}</h5>
-              <p className="card-text">{item.price}</p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
+      <Footer handleCloseSession={handleCloseSession} />
+    </main>
   );
 };
 

@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const URL_USERS = " http://localhost:3004/users";
-const URL_PIZZAS = "http://localhost:3004";
+const URL_USERS = "https://my-json-server.typicode.com/jorgeARA/data-pizzeria/users";
+const URL_PIZZAS = "https://my-json-server.typicode.com/jorgeARA/data-pizzeria/pizzas";
 
 export const userFind = async (email, pass) => {
   const url = `${URL_USERS}?email=${email}&password=${pass}`;
@@ -15,6 +15,7 @@ export const userFind = async (email, pass) => {
     };
   }
 };
+
 export const createUser = async (user) => {
   try {
     const { data } = await axios.post(`${URL_USERS}`, user);
@@ -52,5 +53,43 @@ export const filterPizzas = async (word) => {
       error,
       data: null,
     };
+  }
+};
+export const getSinglePizza = async (id) => {
+  const url = `${URL_PIZZAS}/pizzas?id=${id}`;
+  try {
+    const { data } = await axios.get(url);
+    return data;
+  } catch (error) {
+    return {
+      error,
+      data: null,
+    };
+  }
+};
+
+export const createBuy = async (buy) => {
+  try {
+    const { data } = await axios.post(`${URL_PIZZAS}/compra`, buy);
+    return data;
+  } catch (error) {
+    return {
+      error,
+      data: null,
+    };
+  }
+};
+
+export const redirectUser = (navigate) => {
+  const userSession = sessionStorage.getItem("user");
+  if (userSession) {
+    navigate("/home");
+  }
+};
+
+export const protectedRoute = (navigate) => {
+  const userSession = sessionStorage.getItem("user");
+  if (!userSession) {
+    navigate("/");
   }
 };

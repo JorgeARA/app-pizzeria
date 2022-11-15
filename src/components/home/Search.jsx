@@ -3,13 +3,17 @@ import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useState } from "react";
 import { filterPizzas } from "../../services/user";
-//import "bootstrap/dist/js/bootstrap";
 import "./style.scss";
 import { useEffect } from "react";
+import Card from "./Card";
+import Footer from "./Footer";
+import Header from "./Header";
 
 const Search = () => {
   const [pizzas, setPizzas] = useState([]);
   const [search, setSearch] = useState("");
+  //pone el search inicial sin pizzas
+  const [showFilter, setShowFilter] = useState(false);
 
   const fetchPizzas = async () => {
     const product = await filterPizzas();
@@ -20,40 +24,23 @@ const Search = () => {
   useEffect(() => {
     fetchPizzas();
   }, []);
-
+  //le damos el valos setShowFilter true aceptando poner el estado inicial en blanco
   const handleChange = (e) => {
     setSearch(e.target.value);
+    setShowFilter(true);
   };
 
-  const filtrar = ! search ? pizzas : pizzas.filter((results) => results.name.toString().toLowerCase().includes(search.toLowerCase()))
-
-  // const filter = (word) => {
-  //   const searchFilter = pizzas.filter((results) => {
-  //     if (results.name.toString().toLowerCase().includes(word.toLowerCase())) {
-  //       return results;
-  //     }
-  //   });
-  //   setPizzas(searchFilter);
-  //   console.log(searchFilter);
-  // };
+  const filtrar = !search
+    ? pizzas
+    : pizzas.filter((results) =>
+        results.name.toString().toLowerCase().includes(search.toLowerCase())
+      );
 
   return (
-    <>
-      <div>
-        <Link to="/home">
-          <button>Home</button>
-        </Link>
-        <Link to="/search">
-          <button>Search</button>
-        </Link>
-        <Link to="/cart">
-          <button>Carrito</button>
-        </Link>
-        <Link to="/details">
-          <button>detalles</button>
-        </Link>
-      </div>
-      <div className="input-group mb-3">
+    <main className="main">
+      <div className="home">
+        <Header />
+
         <input
           type="text"
           value={search}
@@ -64,21 +51,16 @@ const Search = () => {
           onChange={handleChange}
         />
         <button className="btn btn-success">Buscar</button>
-        <div>
-          {filtrar.map((item, index) => {
-            return (
-              <div key={index} className="card text-bg-dark">
-                <img src={item.image} className="card-img" alt="Pizza" />
-                <div className="card-img-overlay">
-                  <h5 className="card-title">{item.name}</h5>
-                  <p className="card-text">{item.price}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <section className="container">
+          {/* Le pasamos la accion del estado mas la funcion .map de pizzas */}
+          {showFilter &&
+            filtrar.map((item) => {
+              return <Card key={item.id} pizza={item} />;
+            })}
+        </section>
       </div>
-    </>
+      <Footer />
+    </main>
   );
 };
 
